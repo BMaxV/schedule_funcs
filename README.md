@@ -41,3 +41,7 @@ def test(vertical=True):
 Here is a picture of output:
 
 ![hello there](regular.svg)
+
+Another one with details of events blocked/blacked/erased:
+
+![hello there](blocked.svg)

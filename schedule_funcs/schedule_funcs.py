@@ -10,7 +10,8 @@ class task_class:
             prefered_day_frequency=0,
             prefered_time=None,
             prefered_day_type=None,
-            priority=float("inf")):
+            priority=float("inf"),
+            tags=None):
         self.name=name
         self.planned_duration=planned_duration
         self.prefered_day_frequency=prefered_day_frequency
@@ -18,6 +19,10 @@ class task_class:
         self.prefered_day_type=prefered_day_type
         self.priority=priority
         
+        if tags!=None:
+            self.tags=tags
+        else:
+            self.tags=[]
         #day_types
         #there are "work day" and "free" days
 
@@ -27,7 +32,8 @@ class task:
             prefered_day_frequency=None,
             prefered_time=None,
             prefered_day_type=None,
-            priority=float("inf")):
+            priority=float("inf"),
+            tags=None):
                 
         self.name=name
         self.planned_duration=planned_duration
@@ -35,9 +41,13 @@ class task:
         self.prefered_time=None
         self.prefered_day_type=prefered_day_type
         self.priority=priority
-        
+        if tags!=None:
+            self.tags=tags
+        else:
+            self.tags=[]
+            
     def __repr__(self):
-        s="<"+self.name+str(self.planned_duration)+str(self.prefered_day_frequency)+">"
+        s="<task"+self.name+str(self.planned_duration)+str(self.prefered_day_frequency)+">"
         return s
 
 def remove_conflict(day):
@@ -270,48 +280,55 @@ def is_special_day(d):
         return "free"
     return "work"
 
+def convert_to_external(week,white_list_tags=[],white_list_priority=None):
+    """
+    convert the calendar to a privacy creating external form.
+    It basically blacks out times you have reserved for other things
+    white list tags or white list priorities will keep things
+    visible.
     
-def convert_to_external(week):
+    E.g. work calendar for work people, private calendar for private
+    people, special limited time schedules for vacation events.
+    """
     new_week=[]
     blocked=task_class("unavailable")
     event_block_start=0
     current_event=1
     block_counter=1
     
-    while event_block_start+block_counter < len(week):
-        print("event block start")
-        print(event_block_start)
-        #input()
+    while event_block_start+block_counter <= len(week):
         event1=week[event_block_start]
         block_counter=1
-        while event_block_start+block_counter < len(week):
+        while event_block_start+block_counter <= len(week):
             
-            #print(current_event)
-            event2=week[event_block_start+block_counter]
-            print(event1,event2)
+            if event_block_start+block_counter < len(week):
+                event2=week[event_block_start+block_counter]
+                
+            else:
+                # this is needed only for the last event and only for
+                # if it's isolated and not part of a block.
+                # not very pretty but it works.
+                event2=[False,False,False]
+                
             if event1[2]==event2[1]:
-                print(event1[2],event2[1])
-                #input()
                 block_counter+=1
                 current_event+=1
                 event1=event2
                 continue
+                
             else:
-                print("bc",block_counter)
-                print(week[event_block_start])
-                print(week[event_block_start+block_counter-1])
+                
                 new_week.append((week[event_block_start][0],
                                 week[event_block_start][1],
                                 week[event_block_start+block_counter-1][2],
                                 task(**blocked.__dict__)))
-                print("new_week",new_week)
-                #input()
-                event_block_start=event_block_start+block_counter+1
+                event_block_start=event_block_start+block_counter
+                block_counter=1
                 break
-                
+    
     return new_week
 
 if __name__=="__main__":
-    test()
+    pass
     
     
